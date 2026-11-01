@@ -1,4 +1,9 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090d18"><title>ALWI GAME REVIEW</title><link rel="stylesheet" href="style.css"></head><body>
+<!doctype html><html lang="id"><link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#101827"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090d18"><title>ALWI GAME REVIEW</title><link rel="stylesheet" href="style.css"></head><script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js");
+}
+</script><body>
 <header><div class="logo">AG</div><div><b>ALWI GAME REVIEW</b><small>FREE FIRE • MOBILE LEGENDS</small></div><button id="export">Ekspor</button></header><main>
 <section class="hero"><small>GAMING ACCOUNT ANALYTICS</small><h1>Kenali akun game<br><span>lebih dalam.</span></h1><p>Cari profil dan catat skin, level, statistik, riwayat match, serta total top up.</p>
 <div class="search"><select id="game"><option value="ff">Free Fire</option><option value="ml">Mobile Legends</option></select><input id="findid" placeholder="UID / ID pemain"><input id="findserver" placeholder="Server ID (MLBB)"><button id="search">Cari</button></div><small class="hint">Pencarian otomatis membutuhkan API resmi/penyedia data yang sah. Versi awal memakai database lokal dan input manual.</small></section>
