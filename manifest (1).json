@@ -1,0 +1,14 @@
+{
+  "name": "ALWI GAME REVIEW",
+  "short_name": "ALWI REVIEW",
+  "description": "Aplikasi review akun Free Fire dan Mobile Legends",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#101827",
+  "background_color": "#101827",
+  "id": "/ALWI-GAME-REVIEW/",
+  "share_target": {
+    "method": "GET"
+  }
+}
