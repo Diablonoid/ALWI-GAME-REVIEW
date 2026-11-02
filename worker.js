@@ -13,9 +13,10 @@ async function hashPassword(password,salt=b64(crypto.getRandomValues(new Uint8Ar
   return salt+"."+b64(bits);
 }
 async function verifyPassword(password,stored) {
-  const parts=String(stored||"").split(".");
+  const parts=String(stored||"").split(/[.:]/);
   if(parts.length!==2) return false;
-  return (await hashPassword(password,parts[0]))===stored;
+  const computed=await hashPassword(password,parts[0]);
+  return computed.split(".")[1]===parts[1];
 }
 async function tokenFor(user,secret) {
   const head=b64(enc.encode(JSON.stringify({alg:"HS256",typ:"JWT"})));
