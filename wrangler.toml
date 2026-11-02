@@ -1,0 +1,8 @@
+name = "square-water-3f85alwi-game-review-api"
+main = "worker.js"
+compatibility_date = "2026-11-02"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "alwi-game-review-db"
+database_id = "8a7f52aa-a628-42cf-9579-d5d9febfa261"
