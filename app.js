@@ -28,3 +28,104 @@ const $=x=>document.getElementById(x),K='alwi-review-v1';let db=JSON.parse(local
  function safe(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
  authUI();loadReviews();
 })();
+
+// === FITUR ONLINE LENGKAP: PROFIL, KOMENTAR, LIKE, TOP UP, ADMIN ===
+(() => {
+ const API="https://square-water-3f85alwi-game-review-api.tahidmujib.workers.dev";
+ const root=document.createElement("section");
+ root.className="online-wrap";
+ root.innerHTML=`
+ <div class="online-card">
+  <h2>Profil game online</h2>
+  <p class="online-status">Simpan ID dan informasi profil game ke Cloudflare D1.</p>
+  <form id="ag-profile" class="online-form">
+   <select id="ag-p-game"><option>Free Fire</option><option>Mobile Legends</option></select>
+   <input id="ag-p-id" placeholder="UID / ID pemain" required maxlength="80">
+   <input id="ag-p-nick" placeholder="Nickname" required maxlength="60">
+   <input id="ag-p-server" placeholder="Server (opsional)">
+   <div class="online-grid"><input id="ag-p-level" type="number" min="0" max="999" placeholder="Level"><input id="ag-p-rank" placeholder="Rank"></div>
+   <button class="primary">Simpan profil online</button>
+  </form>
+  <div id="ag-profiles" class="online-status">Login untuk melihat profil online.</div>
+ </div>
+ <div class="online-card">
+  <h2>Catatan top up</h2>
+  <p class="online-status">Masukkan transaksi sendiri. Status awal menunggu verifikasi admin.</p>
+  <form id="ag-topup" class="online-form">
+   <select id="ag-t-game"><option>Free Fire</option><option>Mobile Legends</option></select>
+   <input id="ag-t-amount" type="number" min="0.01" step="0.01" placeholder="Nominal (MYR)" required>
+   <input id="ag-t-proof" type="url" placeholder="Link bukti pembayaran (opsional)">
+   <button class="primary">Kirim catatan top up</button>
+  </form>
+  <div id="ag-topups" class="online-status">Login untuk melihat riwayat.</div>
+ </div>
+ <div class="online-card">
+  <h2>Komunitas: like & komentar</h2>
+  <div id="ag-community">Memuat review...</div>
+ </div>
+ <div class="online-card" id="ag-admin" style="display:none">
+  <h2>Panel verifikasi admin</h2>
+  <div id="ag-admin-list">Memuat transaksi...</div>
+ </div>`;
+ const style=document.createElement("style");
+ style.textContent=".online-wrap{margin:20px 0;display:grid;gap:14px}.online-card{background:linear-gradient(145deg,#19152e,#101827);border:1px solid #57408b;border-radius:16px;padding:18px}.online-form{display:grid;gap:9px}.online-form input,.online-form textarea,.online-form select{width:100%;box-sizing:border-box;background:#090d18;color:#fff;border:1px solid #57408b;padding:12px;border-radius:9px}.online-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.online-status{font-size:12px;color:#bdaaff}.ag-review{padding:12px 0;border-top:1px solid #ffffff25}.ag-smallbtn{background:#281d43;color:white;border:1px solid #7254ad;border-radius:8px;padding:8px;margin:4px 4px 4px 0}.ag-comments{margin:8px 0 0 12px;padding-left:10px;border-left:2px solid #7254ad}.ag-admin-row{padding:10px 0;border-top:1px solid #ffffff25}@media(max-width:520px){.online-grid{grid-template-columns:1fr}}";
+ document.head.append(style);
+ const prior=document.querySelector("main");
+ if(prior) prior.append(root);
+ const $=id=>document.getElementById(id);
+ const session=()=>{try{return JSON.parse(localStorage.getItem("alwi-session")||"null")}catch{return null}};
+ const api=async(path,options={})=>{
+  const s=session(),headers={"Content-Type":"application/json"};
+  if(s&&s.token) headers.Authorization="Bearer "+s.token;
+  const res=await fetch(API+path,{...options,headers:{...headers,...(options.headers||{})}});
+  const data=await res.json();
+  if(!res.ok) throw Error(data.error||"Permintaan gagal");
+  return data;
+ };
+ const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ const needLogin=()=>{if(!session()?.token){alert("Login terlebih dahulu di bagian komunitas.");return false}return true};
+ async function profiles(){
+  try{const d=await api("/api/game-profiles");$("ag-profiles").innerHTML=d.profiles.length?d.profiles.map(p=>"<p><b>"+safe(p.game)+"</b> — "+safe(p.nickname)+" • ID "+safe(p.player_id)+" • Level "+safe(p.level)+" • "+safe(p.rank)+"</p>").join(""):"Belum ada profil online."}
+  catch(e){$("ag-profiles").textContent=e.message}
+ }
+ $("ag-profile").onsubmit=async e=>{
+  e.preventDefault();if(!needLogin())return;
+  try{await api("/api/game-profiles",{method:"POST",body:JSON.stringify({game:$("ag-p-game").value,player_id:$("ag-p-id").value,nickname:$("ag-p-nick").value,server:$("ag-p-server").value,level:$("ag-p-level").value,rank:$("ag-p-rank").value})});$("ag-profile").reset();profiles();alert("Profil game berhasil disimpan online.")}
+  catch(err){alert(err.message)}
+ };
+ async function topups(){
+  try{const d=await api("/api/topups");$("ag-topups").innerHTML=d.topups.length?d.topups.map(t=>"<p>"+safe(t.game)+" • "+safe(t.currency)+" "+safe(t.amount)+" • <b>"+safe(t.status)+"</b> • "+safe(t.created_at)+"</p>").join(""):"Belum ada catatan top up."}
+  catch(e){$("ag-topups").textContent=e.message}
+ }
+ $("ag-topup").onsubmit=async e=>{
+  e.preventDefault();if(!needLogin())return;
+  try{await api("/api/topups",{method:"POST",body:JSON.stringify({game:$("ag-t-game").value,amount:$("ag-t-amount").value,currency:"MYR",proof_url:$("ag-t-proof").value})});$("ag-topup").reset();topups();alert("Catatan top up dikirim. Status: pending / menunggu verifikasi.")}
+  catch(err){alert(err.message)}
+ };
+ async function community(){
+  try{
+   const d=await api("/api/reviews");
+   $("ag-community").innerHTML=d.reviews.length?d.reviews.map(r=>'<div class="ag-review"><b>'+safe(r.title)+'</b> <span class="stars">'+ "★".repeat(r.rating)+"☆".repeat(5-r.rating)+'</span><div class="online-status">'+safe(r.game)+" • "+safe(r.username)+" • "+safe(r.created_at)+" • "+safe(r.likes||0)+" suka</div><p>"+safe(r.content)+'</p><button class="ag-smallbtn" data-like="'+r.id+'">♥ Like</button><button class="ag-smallbtn" data-comment="'+r.id+'">Komentar</button><div id="ag-c-'+r.id+'"></div></div>').join(""):"Belum ada review.";
+   document.querySelectorAll("[data-like]").forEach(b=>b.onclick=async()=>{if(!needLogin())return;try{await api("/api/reviews/"+b.dataset.like+"/like",{method:"POST",body:"{}"});community()}catch(e){alert(e.message)}});
+   document.querySelectorAll("[data-comment]").forEach(b=>b.onclick=async()=>{
+    const id=b.dataset.comment,box=$("ag-c-"+id);
+    try{
+     const d=await api("/api/reviews/"+id+"/comments");
+     box.innerHTML='<div class="ag-comments">'+(d.comments.map(c=>"<p><b>"+safe(c.username)+"</b>: "+safe(c.content)+"</p>").join("")||"<p>Belum ada komentar.</p>")+'<form class="ag-comment-form" data-review="'+id+'"><input name="content" maxlength="1000" placeholder="Tulis komentar..." required><button class="ag-smallbtn">Kirim</button></form></div>';
+     box.querySelector("form").onsubmit=async e=>{e.preventDefault();if(!needLogin())return;const content=e.target.content.value;try{await api("/api/reviews/"+id+"/comments",{method:"POST",body:JSON.stringify({content})});community()}catch(err){alert(err.message)}};
+    }catch(e){alert(e.message)}
+   });
+  }catch(e){$("ag-community").textContent=e.message}
+ }
+ async function admin(){
+  const s=session();if(!s||!s.user||s.user.role!=="admin")return;
+  $("ag-admin").style.display="block";
+  try{
+   const d=await api("/api/admin/topups");
+   $("ag-admin-list").innerHTML=d.topups.length?d.topups.map(t=>'<div class="ag-admin-row"><b>#'+t.id+" • "+safe(t.username)+"</b><p>"+safe(t.game)+" • "+safe(t.currency)+" "+safe(t.amount)+" • "+safe(t.status)+'</p><p>'+safe(t.proof_url||"Tanpa bukti")+'</p>'+(t.status==="pending"?'<button class="ag-smallbtn" data-approve="'+t.id+'">Setujui</button><button class="ag-smallbtn" data-reject="'+t.id+'">Tolak</button>':"")+'</div>').join(""):"Belum ada transaksi.";
+   document.querySelectorAll("[data-approve],[data-reject]").forEach(b=>b.onclick=async()=>{const status=b.hasAttribute("data-approve")?"approved":"rejected";const note=prompt("Catatan admin (opsional):")||"";try{await api("/api/admin/topups/"+(b.dataset.approve||b.dataset.reject),{method:"PATCH",body:JSON.stringify({status,admin_note:note})});admin();topups()}catch(e){alert(e.message)}});
+  }catch(e){$("ag-admin-list").textContent=e.message}
+ }
+ if(prior){profiles();topups();community();admin()}
+ window.addEventListener("storage",()=>{profiles();topups();community();admin()});
+})();
