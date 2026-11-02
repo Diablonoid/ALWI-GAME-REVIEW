@@ -1,0 +1,32 @@
+ALWI GAME REVIEW - PANDUAN AKTIVASI
+
+Yang sudah disiapkan:
+- Website responsif tema hitam/ungu.
+- Catatan profil game tersimpan lokal pada browser.
+- Form login dan daftar akun melalui Cloudflare Worker.
+- Review komunitas tersimpan di database D1.
+- API mencatat pengajuan top up berstatus pending.
+- Pencadangan data profil lokal melalui tombol Ekspor.
+
+AKTIVASI API CLOUDFLARE:
+1. Buka Cloudflare Dashboard > Workers & Pages.
+2. Buka square-water-3f85alwi-game-review-api.
+3. Masuk ke Edit code.
+4. Ganti seluruh isi editor dengan isi file worker.js dari repositori GitHub ini.
+5. Klik Deploy.
+6. Pastikan Settings > Bindings memiliki D1 binding bernama DB yang menunjuk ke alwi-game-review-db.
+7. Pastikan secret AUTH_SECRET tersedia pada Production. Jangan bagikan nilainya.
+8. Buka https://square-water-3f85alwi-game-review-api.tahidmujib.workers.dev/api/health
+   Hasil yang benar: {"ok":true,"service":"ALWI GAME REVIEW API"}
+
+AKTIVASI WEBSITE:
+- Aktifkan GitHub Pages pada repositori ini melalui Settings > Pages.
+- Pilih Deploy from a branch, branch main, folder /(root), lalu Save.
+- Setelah proses selesai, alamat website akan tampil di halaman Settings > Pages.
+
+CATATAN:
+- Akun game tidak meminta password atau OTP.
+- Data profil, skin, statistik dan match yang dimasukkan manual bukan data resmi dari server game.
+- Review online membutuhkan Worker aktif.
+- Pengajuan top up perlu bukti dan pemeriksaan admin. Endpoint persetujuan admin dan upload bukti belum diaktifkan.
+- Jangan menganggap data transaksi manual sebagai transaksi yang sudah diverifikasi.
