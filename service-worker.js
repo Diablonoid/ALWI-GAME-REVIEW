@@ -1,4 +1,4 @@
-const CACHE_NAME = "alwi-game-review-v2";
+const CACHE_NAME = "alwi-game-review-v3";
 const ASSETS = ["./","./index.html","./style.css","./app.js","./manifest.json"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ASSETS)));self.skipWaiting()});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
